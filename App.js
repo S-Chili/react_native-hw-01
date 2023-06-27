@@ -1,12 +1,30 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, ImageBackground, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { useFonts } from 'expo-font';
+import RegistrationScreen from './src/Screens/RegistrationScreen';
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    'Roboto-Medium': require('./assets/fonts/Roboto/Roboto-Medium.ttf'),
+    'Roboto-Regular': require('./assets/fonts/Roboto/Roboto-Regular.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <ImageBackground
+          source={require('./assets/photoBG.png')}
+          style={styles.image}
+        />
+        <RegistrationScreen />
+        <StatusBar style="auto" />
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -16,5 +34,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  image: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
   },
 });
