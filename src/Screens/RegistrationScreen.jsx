@@ -7,8 +7,8 @@ const RegistrationScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  const onPress = () => {
-    console.log('Button pressed!');
+  const onRegister = () => {
+    console.log("Credentials", `${username} + ${email} + ${password}`);
   };
 
   const onLoginPress = () => {
@@ -49,7 +49,7 @@ const RegistrationScreen = () => {
         secureTextEntry
         onChangeText={(text) => setPassword(text)}
       />
-      <Pressable style={styles.button} onPress={onPress}>
+      <Pressable style={styles.button} onPress={onRegister}>
         <Text style={styles.label}>Зареєстуватися</Text>
       </Pressable>
       <Pressable style={styles.link} onPress={onLoginPress}>

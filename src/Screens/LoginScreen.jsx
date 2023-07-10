@@ -1,43 +1,57 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { 
+  StyleSheet, 
+  Text, 
+  TextInput, 
+  View, 
+  Pressable,
+  KeyboardAvoidingView,
+} from 'react-native';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation();
+
+  const onLogin = () => {
+    console.log("Credentials", `${email} + ${password}`);
+  };
 
   const onLoginPress = () => {
-    navigation.navigate('Registration');
+    console.log('Registration');
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Увійти</Text>
-      <TextInput
-        style={styles.input}
-        value={email}
-        placeholder={'Адреса електронної пошти'}
-        placeholderTextColor="#BDBDBD"
-        onChangeText={text => setEmail(text)}
-      />
-      <TextInput
-        style={styles.input}
-        value={password}
-        placeholder={'Пароль'}
-        placeholderTextColor="#BDBDBD"
-        secureTextEntry
-        onChangeText={text => setPassword(text)}
-      />
-      <Pressable style={styles.button}>
-        <Text style={styles.label}>Увійти</Text>
-      </Pressable>
-      <Pressable style={styles.link}
-                 onPress={onLoginPress}
-        >
-        <Text style={styles.linklabel}>Немає акаунту? Зареєструватися</Text>
-      </Pressable>    
-      </View>
+    <View style={styles.container}>   
+    <Text style={styles.title}>Увійти</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            placeholder={'Адреса електронної пошти'}
+            placeholderTextColor="#BDBDBD"
+            onChangeText={text => setEmail(text)}
+          />
+          <TextInput
+            style={styles.input}
+            value={password}
+            placeholder={'Пароль'}
+            placeholderTextColor="#BDBDBD"
+            secureTextEntry
+            onChangeText={text => setPassword(text)}
+          />
+          <Pressable 
+            style={styles.button}
+            onPress={onLogin}
+          >
+            <Text style={styles.label}>Увійти</Text>
+          </Pressable>
+          <Pressable 
+            style={styles.link}
+            onPress={onLoginPress}
+          >
+            <Text style={styles.linklabel}>Немає акаунту? Зареєструватися</Text>
+          </Pressable>   
+    
+    </View>
   );
 };
 
