@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable, ImageBackground, KeyboardAvoidingView } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const RegistrationScreen = () => {
   const [username, setUsername] = useState('');
@@ -11,9 +12,7 @@ const RegistrationScreen = () => {
     console.log("Credentials", `name: ${username} + email: ${email} + password: ${password}`);
   };
 
-  const onLoginPress = () => {
-    console.log('Button pressed!');
-  };
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
@@ -60,7 +59,7 @@ const RegistrationScreen = () => {
             <Pressable style={styles.button} onPress={onRegister}>
               <Text style={styles.label}>Зареєстуватися</Text>
             </Pressable>
-            <Pressable style={styles.link} onPress={onLoginPress}>
+            <Pressable style={styles.link} onPress={() => navigation.navigate("Login")}>
               <Text style={styles.linklabel}>Вже є акаунт? Увійти</Text>
             </Pressable>
           </View>
@@ -118,7 +117,7 @@ const styles = StyleSheet.create({
   title: {
     color: '#212121',
     fontSize: 30,
-    fontFamily: 'Roboto-Regular',
+    fontFamily: 'Roboto-Medium',
     marginBottom: 32,
   },
   input: {

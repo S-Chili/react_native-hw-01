@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { 
   StyleSheet, 
   Text, 
   TextInput, 
   View, 
   Pressable,
+  ImageBackground,
+  KeyboardAvoidingView
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -15,14 +18,17 @@ const LoginScreen = () => {
     console.log("Credentials", `email: ${email} + password: ${password}`);
   };
 
-  const onLoginPress = () => {
-    console.log('Registration');
-  };
+  const navigation = useNavigation();
 
   return (
-    <>
-    <View style={styles.containerLogin}>   
-    <Text style={styles.title}>Увійти</Text>
+    <View style={styles.container}>
+      <ImageBackground
+        source={require('../../assets/photoBG.png')}
+        style={styles.imageBgr}
+      >
+        <KeyboardAvoidingView style={styles.contentContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <View style={styles.containerLogin}>   
+          <Text style={styles.title}>Увійти</Text>
           <TextInput
             style={styles.input}
             value={email}
@@ -46,12 +52,15 @@ const LoginScreen = () => {
           </Pressable>
           <Pressable 
             style={styles.link}
-            onPress={onLoginPress}
+            onPress={() => navigation.navigate("Registration")}
           >
             <Text style={styles.linklabel}>Немає акаунту? Зареєструватися</Text>
           </Pressable>   
     
-    </View></>
+    </View>
+    </KeyboardAvoidingView>
+    </ImageBackground>
+    </View>
     
   );
 };
@@ -59,19 +68,31 @@ const LoginScreen = () => {
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  containerLogin: {
-    position: 'absolute',
-    bottom: 0,
-    width: `100%`,
+  container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
     backgroundColor: '#fff',
-    borderRadius: 25,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    paddingLeft: 16,
-    paddingRight: 16,
+  },
+  imageBgr: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    width: '100%',
+  },
+  containerLogin: {
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    paddingHorizontal: 16,
     paddingBottom: 78,
   },
   title: {
