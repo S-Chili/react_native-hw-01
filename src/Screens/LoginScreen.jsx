@@ -5,7 +5,6 @@ import {
   TextInput, 
   View, 
   Pressable,
-  KeyboardAvoidingView,
 } from 'react-native';
 
 const LoginScreen = () => {
@@ -13,7 +12,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
 
   const onLogin = () => {
-    console.log("Credentials", `${email} + ${password}`);
+    console.log("Credentials", `email: ${email} + password: ${password}`);
   };
 
   const onLoginPress = () => {
@@ -21,7 +20,8 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>   
+    <>
+    <View style={styles.containerLogin}>   
     <Text style={styles.title}>Увійти</Text>
           <TextInput
             style={styles.input}
@@ -51,14 +51,15 @@ const LoginScreen = () => {
             <Text style={styles.linklabel}>Немає акаунту? Зареєструватися</Text>
           </Pressable>   
     
-    </View>
+    </View></>
+    
   );
 };
 
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  containerLogin: {
     position: 'absolute',
     bottom: 0,
     width: `100%`,

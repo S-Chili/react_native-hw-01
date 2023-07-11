@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Pressable, ImageBackground, KeyboardAvoidingView } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
 const RegistrationScreen = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const onRegister = () => {
-    console.log("Credentials", `${username} + ${email} + ${password}`);
+    console.log("Credentials", `name: ${username} + email: ${email} + password: ${password}`);
   };
 
   const onLoginPress = () => {
@@ -17,44 +17,55 @@ const RegistrationScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.image}>
-        <AntDesign
-          style={styles.plusIcon}
-          name="pluscircleo"
-          size={24}
-          color="black"
-        />
-      </View>
-      <Text style={styles.title}>Реєстрація</Text>
-      <TextInput
-        style={styles.input}
-        value={username}
-        placeholder={'Логін'}
-        placeholderTextColor="#BDBDBD"
-        onChangeText={(text) => setUsername(text)}
-        autoCapitalize={'none'}
-      />
-      <TextInput
-        style={styles.input}
-        value={email}
-        placeholder={'Адреса електронної пошти'}
-        placeholderTextColor="#BDBDBD"
-        onChangeText={(text) => setEmail(text)}
-      />
-      <TextInput
-        style={styles.input}
-        value={password}
-        placeholder={'Пароль'}
-        placeholderTextColor="#BDBDBD"
-        secureTextEntry
-        onChangeText={(text) => setPassword(text)}
-      />
-      <Pressable style={styles.button} onPress={onRegister}>
-        <Text style={styles.label}>Зареєстуватися</Text>
-      </Pressable>
-      <Pressable style={styles.link} onPress={onLoginPress}>
-        <Text style={styles.linklabel}>Вже є акаунт? Увійти</Text>
-      </Pressable>
+      <ImageBackground
+        source={require('../../assets/photoBG.png')}
+        style={styles.imageBgr}
+      >
+        <KeyboardAvoidingView style={styles.contentContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <View style={styles.content}>
+            <View style={styles.imageWrapper}>
+              <View style={styles.image} >
+                <AntDesign
+                  style={styles.plusIcon}
+                  name="pluscircleo"
+                  size={24}
+                  color="black"
+                />
+              </View>
+            </View>
+            <Text style={styles.title}>Реєстрація</Text>
+            <TextInput
+              style={styles.input}
+              value={username}
+              placeholder={'Логін'}
+              placeholderTextColor="#BDBDBD"
+              onChangeText={(text) => setUsername(text)}
+              autoCapitalize={'none'}
+            />
+            <TextInput
+              style={styles.input}
+              value={email}
+              placeholder={'Адреса електронної пошти'}
+              placeholderTextColor="#BDBDBD"
+              onChangeText={(text) => setEmail(text)}
+            />
+            <TextInput
+              style={styles.input}
+              value={password}
+              placeholder={'Пароль'}
+              placeholderTextColor="#BDBDBD"
+              secureTextEntry
+              onChangeText={(text) => setPassword(text)}
+            />
+            <Pressable style={styles.button} onPress={onRegister}>
+              <Text style={styles.label}>Зареєстуватися</Text>
+            </Pressable>
+            <Pressable style={styles.link} onPress={onLoginPress}>
+              <Text style={styles.linklabel}>Вже є акаунт? Увійти</Text>
+            </Pressable>
+          </View>
+        </KeyboardAvoidingView>
+      </ImageBackground>
     </View>
   );
 };
@@ -62,73 +73,91 @@ const RegistrationScreen = () => {
 export default RegistrationScreen;
 
 const styles = StyleSheet.create({
-    container: {
-      position: 'absolute',
-      bottom: 0,
-      width: `100%`,
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      backgroundColor: '#fff',
-      borderRadius: 25,
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-      paddingLeft: 16,
-      paddingRight: 16,
-      paddingBottom: 78,
-    },
-    plusIcon: {
-      position: 'absolute',
-      right: -12.5,
-      bottom: 16,
-      width: 25,
-      height: 25,
-      color: '#FF6C00',
-    },
-    title: {
-      color: '#212121',
-      fontSize: 30,
-      fontFamily: 'Roboto-Regular',
-      marginBottom: 32,
-    },
-    input: {
-      height: 50,
-      marginBottom: 16,
-      backgroundColor: '#F6F6F6',
-      borderRadius: 8,
-      width: '100%',
-      padding: 16,
-      borderWidth: 1,
-      borderStyle: 'solid',
-      borderColor: '#E8E8E8',
-    },
-    image: {
-      width: 120,
-      height: 120,
-      marginBottom: 32,
-      backgroundColor: '#F6F6F6',
-      borderRadius: 16,
-      marginTop: -60,
-    },
-    button: {
-      width: '100%',
-      borderRadius: 100,
-      alignItems: 'center',
-      padding: 16,
-      backgroundColor: '#FF6C00',
-      marginTop: 43,
-    },
-    label: {
-      color: '#fff',
-      fontSize: 16,
-    },
-    link: {
-      width: '100%',
-      alignItems: 'center',
-    },
-    linklabel: {
-      color: '#1B4371',
-      fontSize: 16,
-      marginTop: 16,
-    },
-  });
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  imageBgr: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    width: '100%',
+  },
+  content: {
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    paddingHorizontal: 16,
+    paddingVertical: 78,
+    paddingBottom: 78,
+  },
+  imageWrapper: {
+    position: 'absolute',
+    top: -60,
+    alignItems: 'center',
+    paddingBottom: 32,
+  },
+  plusIcon: {
+    position: 'absolute',
+    right: -12.5,
+    bottom: 16,
+    width: 25,
+    height: 25,
+    color: '#FF6C00',
+  },
+  title: {
+    color: '#212121',
+    fontSize: 30,
+    fontFamily: 'Roboto-Regular',
+    marginBottom: 32,
+  },
+  input: {
+    height: 50,
+    marginBottom: 16,
+    backgroundColor: '#F6F6F6',
+    borderRadius: 8,
+    width: '100%',
+    padding: 16,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#E8E8E8',
+  },
+  image: {
+    height: 120,
+    width: 120,
+    marginBottom: 32,
+    backgroundColor: '#F6F6F6',
+    borderRadius: 16,
+  },
+  button: {
+    width: '100%',
+    borderRadius: 100,
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#FF6C00',
+    marginTop: 43,
+  },
+  label: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  link: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  linklabel: {
+    color: '#1B4371',
+    fontSize: 16,
+    marginTop: 16,
+  },
+});
