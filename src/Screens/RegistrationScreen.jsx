@@ -8,11 +8,23 @@ const RegistrationScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const onRegister = () => {
-    console.log("Credentials", `name: ${username} + email: ${email} + password: ${password}`);
-  };
-
   const navigation = useNavigation();
+
+  const onRegister = () => {
+    // Assuming successful registration, navigate to Home and then to PostsScreen
+    console.log("Credentials", `name: ${username} + email: ${email} + password: ${password}`);
+    navigation.reset({
+      index: 0,
+      routes: [
+        {
+          name: 'Home',
+          state: {
+            routes: [{ name: 'PostsScreen' }],
+          },
+        },
+      ],
+    });
+  };
 
   return (
     <View style={styles.container}>
