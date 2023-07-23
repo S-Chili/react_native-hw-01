@@ -16,6 +16,7 @@ const CreatePostsScreen = () => {
     const [cameraRef, setCameraRef] = useState(null);
     const [type, setType] = useState(Camera.Constants.Type.back);
     const [lastImage, setLastImage] = useState('');
+    const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
   
     useEffect(() => {
       (async () => {
@@ -46,9 +47,13 @@ const CreatePostsScreen = () => {
     };
 
 
-    const isInputsEmpty = () => {
-      return title.trim() === '' && place.trim() === '';
+    const isInputsNotEmpty = () => {
+      return title.trim() !== '' && place.trim() !== '' && (image.trim() !== '' || lastImage.trim() !== '');    
     };
+
+    const isDataNotEmpty = () => {
+        return title.trim() !== '' || place.trim() !== '' || image.trim() !== '' || lastImage.trim() !== '';
+      };
 
     const onPublish = () => {
       console.log("Credentials", `title: ${title} + place: ${place}`);
@@ -106,11 +111,19 @@ const CreatePostsScreen = () => {
         }
       };
 
+      const toggleCameraType = () => {
+        setCameraType(
+          cameraType === Camera.Constants.Type.back
+            ? Camera.Constants.Type.front
+            : Camera.Constants.Type.back
+        );
+      };
+
   return (
     <View style={styles.container}>
         <Camera
             style={styles.imageContainer}
-            type={type}
+            type={cameraType}
             ref={setCameraRef}
             >
             <Pressable style={circleContainerStyle} onPress={handleTakePicture}>
@@ -123,7 +136,10 @@ const CreatePostsScreen = () => {
                 />
             )}
         </Camera>
-        <Text style={styles.greyText} onPress={handleImageUpload}>Завантажте фото</Text>
+        <View style={styles.btnContent}>
+            <Text style={styles.greyText} onPress={handleImageUpload}>Завантажте фото</Text>
+            <Text style={styles.rightText} onPress={toggleCameraType}>Повернути камеру</Text>
+        </View>
       <KeyboardAvoidingView style={styles.contentContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={styles.content}>
             <TextInput
@@ -146,17 +162,24 @@ const CreatePostsScreen = () => {
             </View>
             <Pressable
                 style={[
-                styles.button,
-                { backgroundColor: isInputsEmpty() ? "#F6F6F6" : "#FF6C00" }, 
+                    styles.button,
+                    { backgroundColor: isInputsNotEmpty() ? "#FF6C00" : "#F6F6F6" },
                 ]}
-                disabled={isInputsEmpty()} 
+                disabled={!isInputsNotEmpty()} 
                 onPress={onPublish}
             >
                 <Text style={styles.label}>Опубліковати</Text>
             </Pressable>
           </View>
         </KeyboardAvoidingView>
-        <Pressable style={styles.ellipseContainerStyle} onPress={onDelete}>
+        <Pressable
+            style={[
+                styles.ellipseContainerStyle,
+                { backgroundColor: isDataNotEmpty() ? "#FF6C00" : "#F6F6F6" },
+            ]}
+            disabled={!isDataNotEmpty()}
+            onPress={onDelete}
+            >
             <MaterialCommunityIcons name="delete-outline" size={24} color="grey" />
         </Pressable>
     </View>
@@ -190,7 +213,16 @@ const styles = StyleSheet.create({
     fontStyle: 'normal',
     fontWeight: "normal", 
     marginTop: 15,
-    marginRight: 207,
+    marginRight: 100,
+  },
+  rightText: {
+    textAlign: "right",
+    color: '#BDBDBD',
+    //fontFamily: 'Roboto',
+    fontSize: 16,
+    fontStyle: 'normal',
+    fontWeight: "normal",
+    marginTop: 15, 
   },
   contentContainer: {
     flex: 1,
@@ -204,6 +236,11 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 25,
     paddingHorizontal: 16,
     paddingVertical: 78,
+  },
+  btnContent: {
+    flexDirection: "row", // Arrange the elements in a row horizontally
+    justifyContent: "space-between", // Put one element at the start and the other at the end
+    alignItems: "center", // Align items vertically within the row
   },
   input: {
     height: 50,
