@@ -1,13 +1,16 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { TouchableOpacity } from 'react-native';
 import { AntDesign, Fontisto, Feather } from '@expo/vector-icons'; 
 import CreatePostsScreen from "./CreatePostsScreen";
 import PostsScreen from "./PostsScreen";
 import ProfileScreen from "./ProfileScreen";
+import RegistrationScreen from "./RegistrationScreen";
 
 const Tabs = createBottomTabNavigator();
 
 const Home = ({ navigation }) => {
+
   return (
     <Tabs.Navigator
       screenOptions={({ route }) => ({
@@ -37,12 +40,16 @@ const Home = ({ navigation }) => {
           headerTitle: "Публікації",
           headerTitleStyle: { fontWeight: 'bold' },
           headerRight: () => (
-            <Feather
-              name="log-out"
-              size={24}
-              color="grey"
+            <TouchableOpacity // Use TouchableOpacity for navigation
+              onPress={() => navigation.navigate('Registration')}
               style={{ marginRight: 16 }}
-            />
+            >
+              <Feather
+                name="log-out"
+                size={24}
+                color="grey"
+              />
+            </TouchableOpacity>
           ),
         }}
       />
@@ -53,13 +60,16 @@ const Home = ({ navigation }) => {
           headerTitle: "Створити публікацію",
           headerTitleStyle: { fontWeight: 'bold' },
           headerLeft: () => (
-            <Fontisto
-              name="arrow-left-l"
-              size={24}
-              color="grey"
-              style={{ marginLeft: 16 }}
+            <TouchableOpacity // Use TouchableOpacity for navigation
               onPress={() => navigation.navigate('PostsScreen')}
-            />
+              style={{ marginLeft: 16 }}
+            >
+              <Fontisto
+                name="arrow-left-l"
+                size={24}
+                color="grey"
+              />
+            </TouchableOpacity>
           ),
           tabBarStyle: { display: 'none' }, // Hide the bottom tab bar on this screen
         }}

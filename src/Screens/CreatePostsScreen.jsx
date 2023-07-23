@@ -1,14 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, KeyboardAvoidingView, Pressable, Image } from "react-native";
 import { Ionicons, EvilIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
 import * as ImagePicker from 'expo-image-picker';
+import { Camera } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
 
 const CreatePostsScreen = () => {
     const [title, setTitle] = useState('');
     const [place, setPlace] = useState('');
     const [image, setImage] = useState('');
     const [circleColor, setCircleColor] = useState('#fff');
+
+    const [hasPermission, setHasPermission] = useState(null);
+    const [cameraRef, setCameraRef] = useState(null);
+    const [type, setType] = useState(Camera.Constants.Type.back);
+    const [lastImage, setLastImage] = useState('');
+  
+    useEffect(() => {
+      (async () => {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        await MediaLibrary.requestPermissionsAsync();
+  
+        setHasPermission(status === "granted");
+      })();
+    }, []);
+
+    if (hasPermission === null) {
+      return <View />;
+    }
+    if (hasPermission === false) {
+      return <Text>No access to camera</Text>;
+    }
 
     const circleContainerStyle = {
       position: 'absolute',
@@ -32,6 +55,7 @@ const CreatePostsScreen = () => {
       setTitle('');
       setPlace('');
       setImage('');
+      setLastImage('');
       setCircleColor('rgba(255, 255, 255, 1)');
     };
 
@@ -40,38 +64,66 @@ const CreatePostsScreen = () => {
         setPlace('');
         setImage('');
         setCircleColor('rgba(255, 255, 255, 1)');
+        setLastImage('');
       };
 
-    const handleImageUpload = async () => {
-      let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const handleImageUpload = async () => {
+        let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
       
-      if (permissionResult.granted === false) {
-        alert('Permission to access the camera roll is required!');
-        return;
-      }
+        if (permissionResult.granted === false) {
+          alert('Permission to access the camera roll is required!');
+          return;
+        }
       
-      let pickerResult = await ImagePicker.launchImageLibraryAsync();
+        let pickerResult = await ImagePicker.launchImageLibraryAsync();
       
-      if (!pickerResult.canceled && pickerResult.assets.length > 0) {
-        // Set the selected image URI to the state variable 'image'
-        setImage(pickerResult.assets[0].uri);
-        setCircleColor('rgba(255, 255, 255, 0.3)'); // Change the circleContainer color when an image is uploaded
-      }
-    };
+        if (!pickerResult.canceled && pickerResult.assets.length > 0) {
+          // Set the selected image URI to the state variable 'image'
+          setImage(pickerResult.assets[0].uri);
+          setCircleColor('rgba(255, 255, 255, 0.3)'); // Change the circleContainer color when an image is uploaded
+        }
+      };
+    
+      const handleTakePicture = async () => {
+        if (cameraRef) {
+          const photo = await cameraRef.takePictureAsync();
+      
+          // Save the photo to the device's media gallery
+          try {
+            const asset = await MediaLibrary.createAssetAsync(photo.uri);
+            const album = await MediaLibrary.getAlbumAsync('ExpoCamera'); // Change 'ExpoCamera' to your preferred album name
+            if (album == null) {
+              await MediaLibrary.createAlbumAsync('ExpoCamera', asset, false);
+            } else {
+              await MediaLibrary.addAssetsToAlbumAsync([asset], album.id, false);
+            }
+          } catch (error) {
+            console.log('Error saving photo to gallery:', error);
+          }
+      
+          setCircleColor('rgba(255, 255, 255, 0.3)');
+          setLastImage(photo.uri); // Update the lastImage state
+        }
+      };
 
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer}>
-        <Pressable style={circleContainerStyle} onPress={handleImageUpload}>
-            <Ionicons name="camera" size={24} color="black" />
-        </Pressable>
-            {image ? (
-                <Image source={{ uri: image }} style={{ width: '100%', height: '100%', resizeMode: 'cover' }} />
-              ) : (
-                null
-              )}
-        </View>
-        <Text style={styles.greyText}>Завантажте фото</Text>
+        <Camera
+            style={styles.imageContainer}
+            type={type}
+            ref={setCameraRef}
+            >
+            <Pressable style={circleContainerStyle} onPress={handleTakePicture}>
+                <Ionicons name="camera" size={24} color="black" />
+            </Pressable>
+            {(image || lastImage) && (
+                <Image
+                source={{ uri: image || lastImage }}
+                style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
+                />
+            )}
+        </Camera>
+        <Text style={styles.greyText} onPress={handleImageUpload}>Завантажте фото</Text>
       <KeyboardAvoidingView style={styles.contentContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={styles.content}>
             <TextInput
