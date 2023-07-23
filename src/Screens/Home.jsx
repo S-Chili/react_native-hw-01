@@ -5,7 +5,6 @@ import { AntDesign, Fontisto, Feather } from '@expo/vector-icons';
 import CreatePostsScreen from "./CreatePostsScreen";
 import PostsScreen from "./PostsScreen";
 import ProfileScreen from "./ProfileScreen";
-import RegistrationScreen from "./RegistrationScreen";
 
 const Tabs = createBottomTabNavigator();
 

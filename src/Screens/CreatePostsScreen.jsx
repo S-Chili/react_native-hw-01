@@ -5,8 +5,12 @@ import { TextInput } from "react-native-gesture-handler";
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
+import { useNavigation } from "@react-navigation/native";
+import { PostContext } from './PostContext';
 
 const CreatePostsScreen = () => {
+    const { addPost } = React.useContext(PostContext);
+
     const [title, setTitle] = useState('');
     const [place, setPlace] = useState('');
     const [image, setImage] = useState('');
@@ -17,6 +21,8 @@ const CreatePostsScreen = () => {
     const [type, setType] = useState(Camera.Constants.Type.back);
     const [lastImage, setLastImage] = useState('');
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
+
+    const navigation = useNavigation();
   
     useEffect(() => {
       (async () => {
@@ -57,11 +63,20 @@ const CreatePostsScreen = () => {
 
     const onPublish = () => {
       console.log("Credentials", `title: ${title} + place: ${place}`);
+      const newPost = {
+        title,
+        place,
+        image: image || lastImage,
+      };
+  
+      // Додайте новий пост до контексту
+      addPost(newPost);
       setTitle('');
       setPlace('');
       setImage('');
       setLastImage('');
       setCircleColor('rgba(255, 255, 255, 1)');
+      navigation.navigate('PostsScreen');
     };
 
     const onDelete = () => {

@@ -8,6 +8,7 @@ import Home from './src/Screens/Home';
 import LoginScreen from './src/Screens/LoginScreen';
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { PostProvider } from './src/Screens/PostContext';
 
 const MainStack = createStackNavigator();
 
@@ -22,7 +23,8 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
+    <PostProvider>
+      <NavigationContainer>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.container}>
             
@@ -54,6 +56,8 @@ export default function App() {
           </View>
         </TouchableWithoutFeedback>
     </NavigationContainer>
+    </PostProvider>
+    
       
   );
 }
