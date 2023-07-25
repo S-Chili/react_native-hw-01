@@ -11,18 +11,9 @@ const RegistrationScreen = () => {
   const navigation = useNavigation();
 
   const onRegister = () => {
-    // Assuming successful registration, navigate to Home and then to PostsScreen
     console.log("Credentials", `name: ${username} + email: ${email} + password: ${password}`);
-    navigation.reset({
-      index: 0,
-      routes: [
-        {
-          name: 'Home',
-          state: {
-            routes: [{ name: 'PostsScreen' }],
-          },
-        },
-      ],
+    navigation.navigate('Home', {
+      screen: 'PostsScreen',
     });
   };
 

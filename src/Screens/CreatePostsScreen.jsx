@@ -18,7 +18,6 @@ const CreatePostsScreen = () => {
 
     const [hasPermission, setHasPermission] = useState(null);
     const [cameraRef, setCameraRef] = useState(null);
-    const [type, setType] = useState(Camera.Constants.Type.back);
     const [lastImage, setLastImage] = useState('');
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
 
@@ -69,7 +68,6 @@ const CreatePostsScreen = () => {
         image: image || lastImage,
       };
   
-      // Додайте новий пост до контексту
       addPost(newPost);
       setTitle('');
       setPlace('');
@@ -98,9 +96,8 @@ const CreatePostsScreen = () => {
         let pickerResult = await ImagePicker.launchImageLibraryAsync();
       
         if (!pickerResult.canceled && pickerResult.assets.length > 0) {
-          // Set the selected image URI to the state variable 'image'
           setImage(pickerResult.assets[0].uri);
-          setCircleColor('rgba(255, 255, 255, 0.3)'); // Change the circleContainer color when an image is uploaded
+          setCircleColor('rgba(255, 255, 255, 0.3)'); 
         }
       };
     
@@ -108,10 +105,9 @@ const CreatePostsScreen = () => {
         if (cameraRef) {
           const photo = await cameraRef.takePictureAsync();
       
-          // Save the photo to the device's media gallery
           try {
             const asset = await MediaLibrary.createAssetAsync(photo.uri);
-            const album = await MediaLibrary.getAlbumAsync('ExpoCamera'); // Change 'ExpoCamera' to your preferred album name
+            const album = await MediaLibrary.getAlbumAsync('ExpoCamera'); 
             if (album == null) {
               await MediaLibrary.createAlbumAsync('ExpoCamera', asset, false);
             } else {
@@ -122,7 +118,7 @@ const CreatePostsScreen = () => {
           }
       
           setCircleColor('rgba(255, 255, 255, 0.3)');
-          setLastImage(photo.uri); // Update the lastImage state
+          setLastImage(photo.uri); 
         }
       };
 
@@ -223,7 +219,6 @@ const styles = StyleSheet.create({
   greyText: {
     textAlign: "left",
     color: '#BDBDBD',
-    //fontFamily: 'Roboto',
     fontSize: 16,
     fontStyle: 'normal',
     fontWeight: "normal", 
@@ -233,7 +228,6 @@ const styles = StyleSheet.create({
   rightText: {
     textAlign: "right",
     color: '#BDBDBD',
-    //fontFamily: 'Roboto',
     fontSize: 16,
     fontStyle: 'normal',
     fontWeight: "normal",
@@ -253,9 +247,9 @@ const styles = StyleSheet.create({
     paddingVertical: 78,
   },
   btnContent: {
-    flexDirection: "row", // Arrange the elements in a row horizontally
-    justifyContent: "space-between", // Put one element at the start and the other at the end
-    alignItems: "center", // Align items vertically within the row
+    flexDirection: "row", 
+    justifyContent: "space-between", 
+    alignItems: "center", 
   },
   input: {
     height: 50,

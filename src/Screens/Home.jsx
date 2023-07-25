@@ -39,7 +39,7 @@ const Home = ({ navigation }) => {
           headerTitle: "Публікації",
           headerTitleStyle: { fontWeight: 'bold' },
           headerRight: () => (
-            <TouchableOpacity // Use TouchableOpacity for navigation
+            <TouchableOpacity 
               onPress={() => navigation.navigate('Registration')}
               style={{ marginRight: 16 }}
             >
@@ -59,7 +59,7 @@ const Home = ({ navigation }) => {
           headerTitle: "Створити публікацію",
           headerTitleStyle: { fontWeight: 'bold' },
           headerLeft: () => (
-            <TouchableOpacity // Use TouchableOpacity for navigation
+            <TouchableOpacity 
               onPress={() => navigation.navigate('PostsScreen')}
               style={{ marginLeft: 16 }}
             >
@@ -70,7 +70,7 @@ const Home = ({ navigation }) => {
               />
             </TouchableOpacity>
           ),
-          tabBarStyle: { display: 'none' }, // Hide the bottom tab bar on this screen
+          tabBarStyle: { display: 'none' },
         }}
       />
       <Tabs.Screen
