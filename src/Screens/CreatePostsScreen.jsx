@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { View, Text, StyleSheet, KeyboardAvoidingView, Pressable, Image } from "react-native";
 import { Ionicons, EvilIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
@@ -7,9 +7,10 @@ import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import { useNavigation } from "@react-navigation/native";
 import { PostContext } from './PostContext';
+import * as Location from "expo-location";
 
 const CreatePostsScreen = () => {
-    const { addPost } = React.useContext(PostContext);
+    const { addPost, location, setLocation } = useContext(PostContext);
 
     const [title, setTitle] = useState('');
     const [place, setPlace] = useState('');
@@ -21,23 +22,33 @@ const CreatePostsScreen = () => {
     const [lastImage, setLastImage] = useState('');
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
 
-    const navigation = useNavigation();
-  
-    useEffect(() => {
-      (async () => {
-        const { status } = await Camera.requestCameraPermissionsAsync();
-        await MediaLibrary.requestPermissionsAsync();
-  
-        setHasPermission(status === "granted");
-      })();
-    }, []);
+    const [postAdded, setPostAdded] = useState(false);
 
-    if (hasPermission === null) {
-      return <View />;
-    }
-    if (hasPermission === false) {
-      return <Text>No access to camera</Text>;
-    }
+    const navigation = useNavigation();
+
+    useEffect(() => {
+        (async () => {
+            // Request camera permissions and media library permissions
+            const cameraStatus = await Camera.requestCameraPermissionsAsync();
+            const mediaStatus = await MediaLibrary.requestPermissionsAsync();
+
+            setHasPermission(cameraStatus.status === "granted" && mediaStatus.status === "granted");
+
+            // Request location permissions and fetch user's location
+            const locationStatus = await Location.requestForegroundPermissionsAsync();
+            if (locationStatus.status === "granted") {
+                const userLocation = await Location.getCurrentPositionAsync({});
+                const coords = {
+                    latitude: userLocation.coords.latitude,
+                    longitude: userLocation.coords.longitude,
+                };
+                // Update the location in the context
+                setLocation(coords);
+            } else {
+                console.log("Permission to access location was denied");
+            }
+        })();
+    }, []);
 
     const circleContainerStyle = {
       position: 'absolute',
@@ -57,24 +68,26 @@ const CreatePostsScreen = () => {
     };
 
     const isDataNotEmpty = () => {
-        return title.trim() !== '' || place.trim() !== '' || image.trim() !== '' || lastImage.trim() !== '';
-      };
+      return title.trim() !== '' || place.trim() !== '' || image.trim() !== '' || lastImage.trim() !== '';
+    };
 
     const onPublish = () => {
-      console.log("Credentials", `title: ${title} + place: ${place}`);
-      const newPost = {
-        title,
-        place,
-        image: image || lastImage,
-      };
-  
-      addPost(newPost);
-      setTitle('');
-      setPlace('');
-      setImage('');
-      setLastImage('');
-      setCircleColor('rgba(255, 255, 255, 1)');
-      navigation.navigate('PostsScreen');
+        console.log("Credentials", `title: ${title} + place: ${place} + location: ${location}`);
+        const newPost = {
+          title,
+          place,
+          image: image || lastImage,
+          location,
+        };
+    
+        setLocation({ ...location }); 
+        addPost(newPost);
+        setTitle('');
+        setPostAdded(true);
+        setPlace('');
+        setImage('');
+        setLastImage('');
+        setCircleColor('rgba(255, 255, 255, 1)');
     };
 
     const onDelete = () => {
@@ -129,6 +142,13 @@ const CreatePostsScreen = () => {
             : Camera.Constants.Type.back
         );
       };
+
+      useEffect(() => {
+        if (postAdded) {
+          setPostAdded(false);
+          navigation.navigate('PostsScreen', { location });
+        }
+      }, [postAdded]);
 
   return (
     <View style={styles.container}>
