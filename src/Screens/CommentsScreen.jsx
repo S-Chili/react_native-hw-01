@@ -127,6 +127,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     width: 343,
     padding: 16,
+    paddingRight: 40,
     borderWidth: 1,
     borderStyle: "solid",
     borderColor: "#E8E8E8",
@@ -159,8 +160,9 @@ const styles = StyleSheet.create({
     color: "black",
     fontSize: 13,
     width: 267,
-    height: 52,
+    minHeight: 52,
     padding: 16,
+    paddingBottom: 0,
     flex: 1,
   },
   commentTime: {

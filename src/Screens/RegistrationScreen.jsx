@@ -11,7 +11,6 @@ const RegistrationScreen = () => {
   const navigation = useNavigation();
 
   const onRegister = () => {
-    console.log("Credentials", `name: ${username} + email: ${email} + password: ${password}`);
     navigation.navigate('Home', {
       screen: 'PostsScreen',
     });

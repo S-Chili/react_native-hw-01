@@ -15,7 +15,9 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
 
   const onLogin = () => {
-    console.log("Credentials", `email: ${email} + password: ${password}`);
+    navigation.navigate('Home', {
+      screen: 'PostsScreen',
+    });
   };
 
   const navigation = useNavigation();
