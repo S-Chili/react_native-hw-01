@@ -1,14 +1,41 @@
-import React from 'react';
-import { StyleSheet, Text, View, ImageBackground, Image, ScrollView } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ImageBackground, Image, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { PostContext } from './PostContext'; 
-import { EvilIcons, Fontisto } from "@expo/vector-icons";
+import { EvilIcons, Fontisto, AntDesign, Feather } from "@expo/vector-icons";
+import MapView, { Marker } from "react-native-maps";
 
-const ProfileScreen = () => {
 
-  const { posts } = React.useContext(PostContext);
+const ProfileScreen = ({ navigation }) => {
 
-  const reversedPosts = [...posts].reverse();
+    const [showMap, setShowMap] = useState(false);
+    const [selectedLocation, setSelectedLocation] = useState('');
+    const { posts, location } = React.useContext(PostContext);
+  
+    const reversedPosts = [...posts].reverse();
+  
+    const initialRegion = location
+      ? {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }
+      : {
+          latitude: 37.78825,
+          longitude: -122.4324,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        };
+        
+  
+    const handleLocationPress = (post) => {
+      setSelectedLocation(post.location);
+      setShowMap(true);
+    };
+
+    const handleCommentsPress = (post) => {
+        navigation.navigate('Comments', { image: post.image });
+      };
 
   return (
     <ScrollView contentContainerStyle={styles.mainContainer}>
@@ -20,13 +47,25 @@ const ProfileScreen = () => {
           <View style={styles.content}>
             <View style={styles.imageWrapper}>
               <View style={styles.image} >
-                <AntDesign
-                  style={styles.plusIcon}
-                  name="pluscircleo"
-                  size={24}
-                  color="black"
+                <AntDesign 
+                    style={styles.plusIcon} 
+                    name="closecircleo" 
+                    size={24} 
+                    color="#BDBDBD" 
                 />
+                
               </View>
+              <TouchableOpacity 
+                    onPress={() => navigation.navigate('Registration')}
+                    style={{ marginRight: 16 }}
+                >
+                    <Feather
+                        style={styles.logIcon}
+                        name="log-out"
+                        size={24}
+                        color="#BDBDBD"
+                    />
+                </TouchableOpacity>
             </View>
             <View style={styles.postsContainer}>
             {posts.length === 0 ? (
@@ -41,15 +80,55 @@ const ProfileScreen = () => {
                   />
                   <Text style={styles.postTitle}>{post.title}</Text>
                   <View style={styles.contentPostContainer}>
-                    <Fontisto name="comment" size={18} color="grey" style={styles.icon} />
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <TouchableOpacity
+                    onPress={() => handleCommentsPress(post)}
+                    style={{ marginRight: 16 }}
+                    >
+                    <Fontisto name="comment" size={18} color="grey" />
+                    </TouchableOpacity>
+                    <EvilIcons name="like" size={30} color="#FF6C00" />
+                </View>
                     <View style={styles.locationContainer}>
-                      <EvilIcons name="location" size={24} color="grey" style={styles.icon} />
-                      <Text style={styles.postTitleRight} numberOfLines={1} ellipsizeMode="tail">{post.place}</Text>
+                        <EvilIcons name="location" size={24} color="grey"/>
+                        <TouchableOpacity onPress={() => handleLocationPress(post)} activeOpacity={0.8}>
+                            <Text style={styles.postTitleRight} numberOfLines={1} ellipsizeMode="tail">
+                            {post.place}
+                            </Text>
+                        </TouchableOpacity>
                     </View>
                   </View>
                 </View>
               ))
             )}
+            <Modal visible={showMap} animationType="slide">
+            <View style={{ flex: 1 }}>
+            {location && (
+                <MapView style={styles.map} initialRegion={initialRegion}>
+                {selectedLocation && (
+                    <Marker
+                    coordinate={{
+                        latitude: selectedLocation.latitude,
+                        longitude: selectedLocation.longitude,
+                    }}
+                    title="Selected Location"
+                    description={selectedLocation.place}
+                    />
+                )}
+                </MapView>
+            )}
+            {!location && <Text style={styles.mapPlaceholderText}>Fetching user location...</Text>}
+            <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => {
+                setSelectedLocation(null);
+                setShowMap(false);
+                }}
+            >
+                <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+            </View>
+        </Modal>
             </View>
            
           </View>
@@ -76,7 +155,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: '100%',
-    paddingTop: 103,
+    paddingTop: 173,
   },
   contentContainer: {
     flex: 1,
@@ -106,7 +185,13 @@ const styles = StyleSheet.create({
     bottom: 16,
     width: 25,
     height: 25,
-    color: '#FF6C00',
+  },
+  logIcon: {
+    position: 'absolute',
+    right: -190.5,
+    bottom: 118,
+    width: 25,
+    height: 25,
   },
   image: {
     height: 120,
@@ -160,11 +245,30 @@ const styles = StyleSheet.create({
     marginRight: 4, 
   },
   locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center', 
-    position: 'absolute',
-    bottom: 0, 
-    right: 0, 
-    marginRight: 8, 
+    flexDirection: "row",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    marginRight: 8,
+  },
+  map: {
+    flex: 1,
+  },
+  mapPlaceholderText: {
+    alignSelf: "center",
+    marginVertical: 16,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 8,
+    zIndex: 1,
+  },
+  closeButtonText: {
+    fontSize: 16,
   },
 });

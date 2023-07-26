@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Modal } fr
 import { EvilIcons, Fontisto } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 
-const PostsScreen = () => {
+const PostsScreen = ({ navigation }) => {
   const [showMap, setShowMap] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('');
   const { posts, location } = React.useContext(PostContext);
@@ -31,20 +31,27 @@ const PostsScreen = () => {
     setShowMap(true);
   };
 
-  console.log(initialRegion);
-  console.log(location);
+  const handleCommentsPress = (post) => {
+    navigation.navigate('Comments', { image: post.image });
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.postsainer}>
       {reversedPosts.map((post, index) => (
         <View key={index} style={styles.postContainer}>
           <Image source={{ uri: post.image }} style={styles.postImage} />
           <Text style={styles.postTitle}>{post.title}</Text>
           <View style={styles.contentPostContainer}>
+          <TouchableOpacity 
+            onPress={() => handleCommentsPress(post)}
+            style={{ marginRight: 16 }}
+          >
             <Fontisto name="comment" size={18} color="grey" style={styles.icon} />
+          </TouchableOpacity>
             <View style={styles.locationContainer}>
               <EvilIcons name="location" size={24} color="grey" style={styles.icon} />
-              <TouchableOpacity onPress={() => handleLocationPress(post)} activeOpacity={0.8}>
+              <TouchableOpacity onPress={() => handleLocationPress(post)}  activeOpacity={0.8}>
                 <Text style={styles.postTitleRight} numberOfLines={1} ellipsizeMode="tail">
                   {post.place}
                 </Text>
@@ -53,6 +60,7 @@ const PostsScreen = () => {
           </View>
         </View>
       ))}
+      </View>
       <Modal visible={showMap} animationType="slide">
         <View style={{ flex: 1 }}>
           {location && (
@@ -88,8 +96,10 @@ const PostsScreen = () => {
 const styles = StyleSheet.create({
   contentContainer: {
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 43,
+    justifyContent: "center",    
+  },
+  postsainer: {
+    marginBottom: 32,
   },
   postContainer: {
     marginTop: 32,

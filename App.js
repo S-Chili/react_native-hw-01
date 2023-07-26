@@ -9,6 +9,7 @@ import LoginScreen from './src/Screens/LoginScreen';
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { PostProvider } from './src/Screens/PostContext';
+import CommentsScreen from './src/Screens/CommentsScreen';
 
 const MainStack = createStackNavigator();
 
@@ -46,6 +47,13 @@ export default function App() {
               <MainStack.Screen 
                 name="Login" 
                 component={LoginScreen}
+                options={{
+                  headerShown: false,
+                }}
+             />
+             <MainStack.Screen 
+                name="Comments" 
+                component={CommentsScreen}
                 options={{
                   headerShown: false,
                 }}

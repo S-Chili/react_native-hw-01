@@ -171,7 +171,10 @@ const CreatePostsScreen = () => {
             <Text style={styles.greyText} onPress={handleImageUpload}>Завантажте фото</Text>
             <Text style={styles.rightText} onPress={toggleCameraType}>Повернути камеру</Text>
         </View>
-      <KeyboardAvoidingView style={styles.contentContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <KeyboardAvoidingView
+        style={styles.contentContainer}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
           <View style={styles.content}>
             <TextInput
               style={styles.input}
@@ -264,7 +267,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     paddingHorizontal: 16,
-    paddingVertical: 78,
+    paddingVertical: 55,
   },
   btnContent: {
     flexDirection: "row", 
@@ -273,7 +276,6 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    marginBottom: 16,
     borderRadius: 8,
     width: '100%',
     padding: 16,
@@ -291,6 +293,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     position: "relative",
+    marginBottom: 32,
   },
   placeInput: {
     paddingLeft: 35, 
