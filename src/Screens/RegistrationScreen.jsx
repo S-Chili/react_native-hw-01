@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable, ImageBackground, KeyboardAvoidingView } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { createUserWithEmailAndPassword} from 'firebase/auth';
+import { auth } from '../../config';
+import { testDatabaseConnection } from './firebaseTest'
 
 const RegistrationScreen = () => {
   const [username, setUsername] = useState('');
@@ -10,11 +13,21 @@ const RegistrationScreen = () => {
 
   const navigation = useNavigation();
 
-  const onRegister = () => {
-    navigation.navigate('Home', {
-      screen: 'PostsScreen',
-    });
+  const onRegister = async () => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password); // Викликаємо функцію реєстрації з Firebase
+      navigation.navigate('Home', {
+        screen: 'PostsScreen',
+      });
+    } catch (error) {
+      console.log('Error during registration:', error);
+      // Тут можна додати обробку помилки реєстрації, наприклад, показати повідомлення користувачу
+    }
   };
+
+  useEffect(() => {
+    testDatabaseConnection();
+  }, []);
 
   return (
     <View style={styles.container}>
