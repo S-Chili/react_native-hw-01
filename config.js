@@ -1,28 +1,27 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
-// Функція для підключення авторизації в проект
-import { getAuth } from "firebase/auth";
-// Функція для підключення бази даних у проект
-import { getFirestore } from "firebase/firestore";
-// Функція для підключення сховища файлів в проект
-import { getStorage } from "firebase/storage";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore'
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBFf5OuA77Fk1RbvWZQdM11WWnWG9dF3WM",
-  authDomain: "socialnetworktats.firebaseapp.com",
-  projectId: "socialnetworktats",
-  storageBucket: "socialnetworktats.appspot.com",
-  messagingSenderId: "325532338953",
-  appId: "1:325532338953:web:a5e1972a4751fed34921d8",
-};
+const firebaseConfig = initializeApp ({
+  apiKey: "AIzaSyBLR-OSUtNo2I6UxF_HlGcGh2sMIibwsvM",
+  authDomain: "myfirebase-auth-a8d39.firebaseapp.com",
+  projectId: "myfirebase-auth-a8d39",
+  storageBucket: "myfirebase-auth-a8d39.appspot.com",
+  messagingSenderId: "920190742440",
+  appId: "1:920190742440:web:ae34f7ec0abf5833b1b79d"
+});
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+const auth = getAuth(firebaseConfig);
+const db = getFirestore(firebaseConfig);
+
+onAuthStateChanged(auth, user => {
+  if(user !== null) {
+    console.log('logged in!');
+  } else {
+    console.log('No user');
+  }
+})
+
+export { auth, db };

@@ -1,10 +1,11 @@
-import React from "react";
+import React from 'react';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { TouchableOpacity } from 'react-native';
 import { AntDesign, Fontisto, Feather } from '@expo/vector-icons'; 
 import CreatePostsScreen from "./CreatePostsScreen";
 import PostsScreen from "./PostsScreen";
 import ProfileScreen from "./ProfileScreen";
+import { getAuth, signOut } from 'firebase/auth';
 
 const Tabs = createBottomTabNavigator();
 
@@ -40,7 +41,17 @@ const Home = ({ navigation }) => {
           headerTitleStyle: { fontWeight: 'bold' },
           headerRight: () => (
             <TouchableOpacity 
-              onPress={() => navigation.navigate('Registration')}
+            onPress={async () => {
+              try {
+                const auth = getAuth();
+                await signOut(auth);
+                console.log('User signed out');
+                navigation.navigate('Login');
+                
+              } catch (error) {
+                console.log('Error during sign out:', error);
+              }
+            }}
               style={{ marginRight: 16 }}
             >
               <Feather

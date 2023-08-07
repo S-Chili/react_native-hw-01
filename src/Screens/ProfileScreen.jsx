@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ImageBackground, Image, ScrollView, TouchableOp
 import { PostContext } from './PostContext'; 
 import { EvilIcons, Fontisto, AntDesign, Feather } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
-
+import { getAuth, signOut } from 'firebase/auth';
 
 const ProfileScreen = ({ navigation }) => {
 
@@ -56,7 +56,16 @@ const ProfileScreen = ({ navigation }) => {
                 
               </View>
               <TouchableOpacity 
-                    onPress={() => navigation.navigate('Registration')}
+                    onPress={async () => {
+                        try {
+                          const auth = getAuth();
+                          await signOut(auth);
+                          console.log('User signed out');
+                          navigation.navigate('Login');
+                        } catch (error) {
+                          console.log('Error during sign out:', error);
+                        }
+                      }}
                     style={{ marginRight: 16 }}
                 >
                     <Feather

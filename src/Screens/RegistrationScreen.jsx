@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable, ImageBackground, KeyboardAvoidingView } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { createUserWithEmailAndPassword} from 'firebase/auth';
-import { auth } from '../../config';
-import { testDatabaseConnection } from './firebaseTest'
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
 const RegistrationScreen = () => {
   const [username, setUsername] = useState('');
@@ -15,19 +13,37 @@ const RegistrationScreen = () => {
 
   const onRegister = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password); // Викликаємо функцію реєстрації з Firebase
-      navigation.navigate('Home', {
-        screen: 'PostsScreen',
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.match(emailRegex)) {
+      alert('Імейл має бути правильного формату');
+      return;
+     }
+      const auth = getAuth();
+      await createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log('Registered with:', user.email);
+          navigation.navigate('Home', {
+            screen: 'PostsScreen',
+          });
+          setEmail(''); 
+          setPassword('');
+          setUsername('');
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+        const errorMessage = error.message;
+        if (errorCode === 'auth/email-already-in-use') {
+          alert('На жаль, ця електронна адреса вже була зареєстрована, використайте іншу, або увійдіть в акаунт.');
+          setEmail(''); 
+          setPassword(''); 
+        }
       });
     } catch (error) {
       console.log('Error during registration:', error);
-      // Тут можна додати обробку помилки реєстрації, наприклад, показати повідомлення користувачу
+      // Handle other errors
     }
   };
-
-  useEffect(() => {
-    testDatabaseConnection();
-  }, []);
 
   return (
     <View style={styles.container}>

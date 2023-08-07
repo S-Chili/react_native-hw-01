@@ -9,16 +9,49 @@ import {
   KeyboardAvoidingView
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const onLogin = () => {
-    navigation.navigate('Home', {
-      screen: 'PostsScreen',
-    });
+  const onLogin = async () => {
+    try {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.match(emailRegex)) {
+      alert('Імейл має бути правильного формату');
+      return;
+    }
+      const auth = getAuth();
+      await signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log('Logged in with:', user.email);
+          navigation.navigate('Home', {
+            screen: 'PostsScreen',
+          });
+          setEmail('');
+          setPassword('');
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+        const errorMessage = error.message;
+        if (errorCode === 'auth/user-not-found') {
+          alert('На жаль, ця електронна адреса не була зареєстрована, використайте іншу, або зареєструйте акаунт.');
+          setEmail('');
+          setPassword('');
+        } else if (errorCode === 'auth/wrong-password') {
+          alert('На жаль, пароль не вірний, використайте інший.');
+          setPassword(''); 
+        }
+      });
+    } catch (error) {
+      console.log('Error during sign in:', error);
+      // Handle other errors
+    }
   };
+
+
 
   const navigation = useNavigation();
 
