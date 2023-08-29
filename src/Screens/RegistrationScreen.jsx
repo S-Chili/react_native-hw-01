@@ -6,6 +6,7 @@ import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase
 import * as ImagePicker from 'expo-image-picker';
 import { setUser } from '../redux/actions';
 import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RegistrationScreen = () => {
   const [username, setUsername] = useState('');
@@ -34,6 +35,7 @@ const RegistrationScreen = () => {
         const displayName = username;
         const userId = user.uid;
         setUserId(userId);
+        AsyncStorage.setItem('userId', userId);
 
         updateProfile(user, { displayName, photoURL: selectedImage })
           .then(() => {

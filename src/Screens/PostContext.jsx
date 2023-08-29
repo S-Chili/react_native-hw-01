@@ -5,16 +5,17 @@ import { collection, addDoc } from 'firebase/firestore';
 
 export const PostContext = createContext();
 
-export const PostProvider = ({ children, initialUserId }) => {
+export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [location, setLocation] = useState(null);
-  const [userId, setUserId] = useState(null); 
+  const [userId, setUserId] = useState(''); 
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const locationData = await AsyncStorage.getItem('userLocation');
         const userIdData = await AsyncStorage.getItem('userId');
+        console.log(userIdData);
         if (locationData) {
           const parsedLocation = JSON.parse(locationData);
           setLocation(parsedLocation);
@@ -29,18 +30,6 @@ export const PostProvider = ({ children, initialUserId }) => {
     };
 
     loadData();
-  }, []);
-
-  useEffect(() => {
-    // When userId changes, update the context
-    const updateContext = async () => {
-      const userIdData = await AsyncStorage.getItem('userId');
-      if (userIdData) {
-        setUserId(userIdData);
-      }
-    };
-
-    updateContext();
   }, []);
 
   useEffect(() => {

@@ -13,6 +13,7 @@ const userReducer = (state = initialUserState, action) => {
       return {
         ...state,
         ...action.payload,
+        userId: action.payload.userId,
       };
     case clearUser.type:
       return initialUserState;
