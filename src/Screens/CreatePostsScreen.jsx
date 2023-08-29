@@ -9,8 +9,8 @@ import { useNavigation } from "@react-navigation/native";
 import { PostContext } from './PostContext';
 import * as Location from "expo-location";
 
-const CreatePostsScreen = () => {
-    const { addPost, location, setLocation } = useContext(PostContext);
+const CreatePostsScreen = ({}) => {
+    const { addPost, location, setLocation, userId } = useContext(PostContext);
 
     const [title, setTitle] = useState('');
     const [place, setPlace] = useState('');
@@ -72,12 +72,13 @@ const CreatePostsScreen = () => {
     };
 
     const onPublish = () => {
-        console.log("Credentials", `title: ${title} + place: ${place} + location: ${location}`);
+        console.log("Credentials,", `title: ${title} + place: ${place} + location: ${location} + id: ${userId}`);
         const newPost = {
           title,
           place,
           image: image || lastImage,
           location,
+          userId: userId,
         };
     
         setLocation({ ...location }); 

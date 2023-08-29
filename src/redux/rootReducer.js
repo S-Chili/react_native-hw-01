@@ -1,12 +1,29 @@
 import { combineReducers } from '@reduxjs/toolkit';
+import { setUser, clearUser } from './actions';
 
-const initialState = {
-  // Тут може бути ваш початковий стан, якщо потрібно
+const initialUserState = {
+  username: '',
+  email: '',
+  selectedImage: '',
 };
 
-const rootReducer = (state = initialState, action) => {
-  // Тут можуть бути деякі додаткові дії, якщо потрібно
-  return state;
+const userReducer = (state = initialUserState, action) => {
+  switch (action.type) {
+    case setUser.type:
+      return {
+        ...state,
+        ...action.payload,
+      };
+    case clearUser.type:
+      return initialUserState;
+    default:
+      return state;
+  }
 };
+
+const rootReducer = combineReducers({
+  user: userReducer,
+  // додайте інші редюсери, які ви маєте
+});
 
 export default rootReducer;

@@ -10,10 +10,14 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useDispatch } from 'react-redux';
+import { setUser } from '../redux/actions';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const dispatch = useDispatch();
 
   const onLogin = async () => {
     try {
@@ -32,6 +36,7 @@ const LoginScreen = () => {
           });
           setEmail('');
           setPassword('');
+          dispatch(setUser({ username: user.displayName, email: user.email}));
         })
         .catch((error) => {
           const errorCode = error.code;

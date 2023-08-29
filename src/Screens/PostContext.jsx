@@ -1,53 +1,72 @@
 import React, { createContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { db } from '../../config';
+import { collection, addDoc } from 'firebase/firestore';
 
 export const PostContext = createContext();
 
-export const PostProvider = ({ children }) => {
+export const PostProvider = ({ children, initialUserId }) => {
   const [posts, setPosts] = useState([]);
   const [location, setLocation] = useState(null);
+  const [userId, setUserId] = useState(null); 
 
-  // Load the location from AsyncStorage when the app starts
   useEffect(() => {
-    const loadLocation = async () => {
+    const loadData = async () => {
       try {
         const locationData = await AsyncStorage.getItem('userLocation');
-        console.log('Loaded location data:', locationData);
+        const userIdData = await AsyncStorage.getItem('userId');
         if (locationData) {
           const parsedLocation = JSON.parse(locationData);
-          console.log('Parsed location:', parsedLocation);
           setLocation(parsedLocation);
         }
+        if (userIdData) {
+          setUserId(userIdData);
+        }
+        
       } catch (error) {
-        console.error('Error loading location from AsyncStorage:', error);
+        console.error('Error loading data from AsyncStorage:', error);
       }
     };
 
-    loadLocation();
+    loadData();
   }, []);
 
-  // Save the location to AsyncStorage whenever it changes
   useEffect(() => {
-    const saveLocation = async () => {
+    // When userId changes, update the context
+    const updateContext = async () => {
+      const userIdData = await AsyncStorage.getItem('userId');
+      if (userIdData) {
+        setUserId(userIdData);
+      }
+    };
+
+    updateContext();
+  }, []);
+
+  useEffect(() => {
+    const saveData = async () => {
       try {
         if (location) {
           await AsyncStorage.setItem('userLocation', JSON.stringify(location));
-          console.log('Saved location:', location);
         } else {
-          // Remove the location from AsyncStorage if it's null
           await AsyncStorage.removeItem('userLocation');
-          console.log('Removed location.');
         }
       } catch (error) {
-        console.error('Error saving location to AsyncStorage:', error);
+        console.error('Error saving data to AsyncStorage:', error);
       }
     };
 
-    saveLocation();
+    saveData();
   }, [location]);
 
-  const addPost = (post) => {
-    setPosts([...posts, post]);
+  const addPost = async (post) => {
+    try {
+      const postsRef = collection(db, 'posts');
+      await addDoc(postsRef, { ...post, userId }); // Додали userId до поста
+      setPosts([...posts, post]);
+    } catch (error) {
+      console.error('Error adding post:', error);
+    }
   };
 
   const values = {
@@ -55,6 +74,7 @@ export const PostProvider = ({ children }) => {
     addPost,
     location,
     setLocation,
+    userId,
   };
 
   return <PostContext.Provider value={values}>{children}</PostContext.Provider>;

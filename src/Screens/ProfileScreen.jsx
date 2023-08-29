@@ -4,13 +4,18 @@ import { PostContext } from './PostContext';
 import { EvilIcons, Fontisto, AntDesign, Feather } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import { getAuth, signOut } from 'firebase/auth';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearUser } from '../redux/actions';
 
 const ProfileScreen = ({ navigation }) => {
 
+  const dispatch = useDispatch();
+
+    const { username, selectedImage } = useSelector(state => state.user);
     const [showMap, setShowMap] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState('');
     const { posts, location } = React.useContext(PostContext);
-  
+
     const reversedPosts = [...posts].reverse();
   
     const initialRegion = location
@@ -47,17 +52,30 @@ const ProfileScreen = ({ navigation }) => {
           <View style={styles.content}>
             <View style={styles.imageWrapper}>
               <View style={styles.image} >
-                <AntDesign 
-                    style={styles.plusIcon} 
-                    name="closecircleo" 
-                    size={24} 
-                    color="#BDBDBD" 
-                />
+              {selectedImage ? (
+                  <View>
+                    <Image source={{ uri: selectedImage }} style={styles.image} />
+                    <AntDesign 
+                      style={styles.closeIcon} 
+                      name="closecircleo" 
+                      size={24}
+                      color="#BDBDBD" 
+                    />
+                  </View>
+                ) : (
+                  <AntDesign
+                    style={styles.plusIcon}
+                    name="pluscircleo"
+                    size={24}
+                    color="#BDBDBD"
+                  />
+                )}
                 
               </View>
               <TouchableOpacity 
                     onPress={async () => {
                         try {
+                          dispatch(clearUser());
                           const auth = getAuth();
                           await signOut(auth);
                           console.log('User signed out');
@@ -76,6 +94,7 @@ const ProfileScreen = ({ navigation }) => {
                     />
                 </TouchableOpacity>
             </View>
+            <Text style={styles.userNameText}>{username}</Text>
             <View style={styles.postsContainer}>
             {posts.length === 0 ? (
               <Text style={styles.noPostsText}>You haven't posted any images yet.</Text>
@@ -188,6 +207,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 32,
   },
+  closeIcon: {
+    position: 'absolute',
+    right: -12.5,
+    bottom: 120,
+    width: 25,
+    height: 25,
+  },
   plusIcon: {
     position: 'absolute',
     right: -12.5,
@@ -208,6 +234,11 @@ const styles = StyleSheet.create({
     marginBottom: 103,
     backgroundColor: '#F6F6F6',
     borderRadius: 16,
+  },
+  userNameText: {
+    fontSize: 40,
+    color: 'black',
+    textAlign: 'center',
   },
   noPostsText: {
     fontSize: 16,

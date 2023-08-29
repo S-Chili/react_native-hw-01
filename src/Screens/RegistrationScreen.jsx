@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Pressable, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Pressable, ImageBackground, KeyboardAvoidingView, Image } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import * as ImagePicker from 'expo-image-picker';
+import { setUser } from '../redux/actions';
+import { useDispatch } from 'react-redux';
 
 const RegistrationScreen = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedImage, setSelectedImage] = useState('');
+  const [userId, setUserId] = useState(null);
+
+  const dispatch = useDispatch();
 
   const navigation = useNavigation();
 
@@ -23,25 +30,61 @@ const RegistrationScreen = () => {
         .then((userCredential) => {
           const user = userCredential.user;
           console.log('Registered with:', user.email);
+
+        const displayName = username;
+        const userId = user.uid;
+        setUserId(userId);
+
+        updateProfile(user, { displayName, photoURL: selectedImage })
+          .then(() => {
+            dispatch(setUser({ username: displayName, email: user.email, selectedImage: user.photoURL }));
+            console.log('Profile uid', userId);
+            console.log('Profile updated successfully');
+            console.log('Profile updated with:', user.displayName);
+            console.log('Profile updated with photo:', user.photoURL);
+          })
+          .catch((error) => {
+            console.error('Error updating profile:', error);
+            
+          });
+
           navigation.navigate('Home', {
             screen: 'PostsScreen',
+            
           });
+
           setEmail(''); 
           setPassword('');
           setUsername('');
+          setSelectedImage('');
         })
         .catch((error) => {
           const errorCode = error.code;
-        const errorMessage = error.message;
-        if (errorCode === 'auth/email-already-in-use') {
-          alert('На жаль, ця електронна адреса вже була зареєстрована, використайте іншу, або увійдіть в акаунт.');
-          setEmail(''); 
-          setPassword(''); 
-        }
-      });
+          const errorMessage = error.message;
+          if (errorCode === 'auth/email-already-in-use') {
+            alert('На жаль, ця електронна адреса вже була зареєстрована, використайте іншу, або увійдіть в акаунт.');
+            setEmail(''); 
+            setPassword('');
+            setSelectedImage(''); 
+          }
+        });
     } catch (error) {
       console.log('Error during registration:', error);
-      // Handle other errors
+    }
+  };
+
+  const selectImage = async () => {
+    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  
+    if (permissionResult.granted === false) {
+      alert('Permission to access the camera roll is required!');
+      return;
+    }
+  
+    let pickerResult = await ImagePicker.launchImageLibraryAsync();
+  
+    if (!pickerResult.canceled && pickerResult.assets.length > 0) {
+      setSelectedImage(pickerResult.assets[0].uri);
     }
   };
 
@@ -54,14 +97,20 @@ const RegistrationScreen = () => {
         <KeyboardAvoidingView style={styles.contentContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={styles.content}>
             <View style={styles.imageWrapper}>
-              <View style={styles.image} >
-                <AntDesign
-                  style={styles.plusIcon}
-                  name="pluscircleo"
-                  size={24}
-                  color="black"
-                />
+            <Pressable onPress={selectImage}>
+              <View style={styles.image}>
+                {selectedImage ? (
+                  <Image source={{ uri: selectedImage }} style={styles.image} />
+                ) : (
+                  <AntDesign
+                    style={styles.plusIcon}
+                    name="pluscircleo"
+                    size={24}
+                    color="black"
+                  />
+                )}
               </View>
+            </Pressable>
             </View>
             <Text style={styles.title}>Реєстрація</Text>
             <TextInput

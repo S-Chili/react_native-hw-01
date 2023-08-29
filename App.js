@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useFonts } from 'expo-font';
 import 'react-native-gesture-handler';
@@ -8,6 +8,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './src/redux/store';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { auth } from './config';
 
 import RegistrationScreen from './src/Screens/RegistrationScreen';
 import Home from './src/Screens/Home';
@@ -24,6 +26,17 @@ export default function App() {
     'Roboto-Regular': require('./assets/fonts/Roboto/Roboto-Regular.ttf'),
   });
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user); // If user is defined, set isAuthenticated to true
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   if (!fontsLoaded) {
     return null;
   }
@@ -31,50 +44,47 @@ export default function App() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-    <PostProvider>
-      <NavigationContainer>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.container}>
-            
-            <MainStack.Navigator initialRouteName="Registration">
-              <MainStack.Screen 
-                name="Registration" 
-                component={RegistrationScreen} 
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <MainStack.Screen 
-                name="Home" 
-                component={Home} 
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <MainStack.Screen 
-                name="Login" 
-                component={LoginScreen}
-                options={{
-                  headerShown: false,
-                }}
-             />
-             <MainStack.Screen 
-                name="Comments" 
-                component={CommentsScreen}
-                options={{
-                  headerShown: false,
-                }}
-             />
-            </MainStack.Navigator>
-              
-            <StatusBar style="auto" />
-          </View>
-        </TouchableWithoutFeedback>
-    </NavigationContainer>
-    </PostProvider>
-    </PersistGate>
+        <PostProvider>
+          <NavigationContainer>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <View style={styles.container}>
+                <MainStack.Navigator initialRouteName={isAuthenticated ? 'Home' : 'Registration'}>
+                  <MainStack.Screen 
+                    name="Registration" 
+                    component={RegistrationScreen} 
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
+                  <MainStack.Screen 
+                    name="Home" 
+                    component={Home} 
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
+                  <MainStack.Screen 
+                    name="Login" 
+                    component={LoginScreen}
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
+                  <MainStack.Screen 
+                    name="Comments" 
+                    component={CommentsScreen}
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
+                </MainStack.Navigator>
+                <StatusBar style="auto" />
+              </View>
+            </TouchableWithoutFeedback>
+          </NavigationContainer>
+        </PostProvider>
+      </PersistGate>
     </Provider>
-      
   );
 }
 
