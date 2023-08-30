@@ -16,6 +16,7 @@ import { setUser } from '../redux/actions';
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [userId, setUserId] = useState('');
 
   const dispatch = useDispatch();
 
@@ -31,12 +32,18 @@ const LoginScreen = () => {
         .then((userCredential) => {
           const user = userCredential.user;
           console.log('Logged in with:', user.email);
+
           navigation.navigate('Home', {
             screen: 'PostsScreen',
           });
           setEmail('');
           setPassword('');
-          dispatch(setUser({ username: user.displayName, email: user.email}));
+          setUserId(user.uid);
+          dispatch(setUser({ username: user.displayName, email: user.email, userId: user.uid}));
+          console.log('You are used now this userId:', userId);
+          console.log('You are used now this userUID:', user.uid);
+          AsyncStorage.setItem('userId', user.uid);
+          
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -56,7 +63,7 @@ const LoginScreen = () => {
     }
   };
 
-
+  
 
   const navigation = useNavigation();
 

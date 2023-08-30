@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PostContext } from "./PostContext";
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Modal } from "react-native";
 import { EvilIcons, Fontisto } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
+import { db } from '../../config';
+import { collection, getDocs} from 'firebase/firestore';
 
 const PostsScreen = ({ navigation }) => {
   const [showMap, setShowMap] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('');
   const { posts, location } = React.useContext(PostContext);
-
-  const reversedPosts = [...posts].reverse();
+  const [allPostsData, setAllPostsData] = useState([]);
 
   const initialRegion = location
     ? {
@@ -35,10 +36,28 @@ const PostsScreen = ({ navigation }) => {
     navigation.navigate('Comments', { image: post.image });
   };
 
+  useEffect(() => {
+    const getPosts = async () => {
+      const postsRef = collection(db, 'posts'); 
+      const querySnapshot = await getDocs(postsRef);
+      
+      const allPostsData = [];
+      querySnapshot.forEach((doc) => {
+        const post = doc.data();
+        const postId = doc.id; // Отримати ідентифікатор документа
+        allPostsData.push({ ...post, id: postId }); // Додати ідентифікатор в об'єкт поста
+      });
+      
+      setAllPostsData(allPostsData); // Зберегти всі пости в стан компонента
+    };
+  
+    getPosts();
+  }, []);
+
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.postsainer}>
-      {reversedPosts.map((post, index) => (
+      {allPostsData.map((post, index) => (
         <View key={index} style={styles.postContainer}>
           <Image source={{ uri: post.image }} style={styles.postImage} />
           <Text style={styles.postTitle}>{post.title}</Text>

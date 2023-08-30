@@ -8,9 +8,12 @@ import * as MediaLibrary from "expo-media-library";
 import { useNavigation } from "@react-navigation/native";
 import { PostContext } from './PostContext';
 import * as Location from "expo-location";
+import { useSelector } from "react-redux";
 
 const CreatePostsScreen = ({}) => {
-    const { addPost, location, setLocation, userId } = useContext(PostContext);
+    const { addPost, location, setLocation } = useContext(PostContext);
+    const { userId} = useSelector(state => state.user);
+    console.log(userId);
 
     const [title, setTitle] = useState('');
     const [place, setPlace] = useState('');

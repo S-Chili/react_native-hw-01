@@ -5,7 +5,7 @@ import { EvilIcons, Fontisto, AntDesign, Feather } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import { db } from '../../config';
 import { getAuth, signOut } from 'firebase/auth';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs} from 'firebase/firestore';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearUser } from '../redux/actions';
 
@@ -13,14 +13,11 @@ const ProfileScreen = ({ navigation }) => {
 
   const dispatch = useDispatch();
 
-    const { username, selectedImage } = useSelector(state => state.user);
+    const { username, selectedImage, userId} = useSelector(state => state.user);
     const [showMap, setShowMap] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState('');
-    const { posts, location, userId } = React.useContext(PostContext);
-
-    const reversedPosts = [...posts].reverse();
-
-    const userPosts = reversedPosts.filter(post => post.userId === userId);
+    const { location } = React.useContext(PostContext);
+    const [allPostsData, setAllPostsData] = useState([]);
   
     const initialRegion = location
       ? {
@@ -48,19 +45,21 @@ const ProfileScreen = ({ navigation }) => {
 
       useEffect(() => {
         const getPosts = async () => {
-          const postsRef = collection(db, '/posts');
-          const querySnapshot = await getDocs(query(postsRef, where('userId', '==', userId)));
+          const postsRef = collection(db, 'posts'); 
+          const querySnapshot = await getDocs(postsRef);
           
-          const userPostsData = [];
+          const allPostsData = [];
           querySnapshot.forEach((doc) => {
             const post = doc.data();
-            userPostsData.push(post);
+            const postId = doc.id; // Отримати ідентифікатор документа
+            allPostsData.push({ ...post, id: postId }); // Додати ідентифікатор в об'єкт поста
           });
-          console.log(userId);
+          
+          setAllPostsData(allPostsData); // Зберегти всі пости в стан компонента
         };
-    
+      
         getPosts();
-      }, [userId]);
+      }, []);
 
   return (
     <ScrollView contentContainerStyle={styles.mainContainer}>
@@ -116,10 +115,12 @@ const ProfileScreen = ({ navigation }) => {
             </View>
             <Text style={styles.userNameText}>{username}</Text>
             <View style={styles.postsContainer}>
-            {posts.length === 0 ? (
+            {allPostsData.length === 0 ? (
               <Text style={styles.noPostsText}>You haven't posted any images yet.</Text>
             ) : (
-              userPosts.map((post, index) => (
+              allPostsData
+                  .filter((post) => post.userId === userId) // Фільтруємо пости за userId
+                  .map((post, index) => (
                 <View key={index} style={styles.postContainer}>
                   <Image
                     source={{ uri: post.image }}

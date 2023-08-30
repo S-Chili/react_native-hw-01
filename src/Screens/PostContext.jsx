@@ -2,26 +2,22 @@ import React, { createContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../../config';
 import { collection, addDoc } from 'firebase/firestore';
+import { useSelector } from 'react-redux';
 
 export const PostContext = createContext();
 
 export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [location, setLocation] = useState(null);
-  const [userId, setUserId] = useState(''); 
+  const { userId} = useSelector(state => state.user);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const locationData = await AsyncStorage.getItem('userLocation');
-        const userIdData = await AsyncStorage.getItem('userId');
-        console.log(userIdData);
         if (locationData) {
           const parsedLocation = JSON.parse(locationData);
           setLocation(parsedLocation);
-        }
-        if (userIdData) {
-          setUserId(userIdData);
         }
         
       } catch (error) {
@@ -52,6 +48,7 @@ export const PostProvider = ({ children }) => {
     try {
       const postsRef = collection(db, 'posts');
       await addDoc(postsRef, { ...post, userId }); // Додали userId до поста
+      console.log(userId);
       setPosts([...posts, post]);
     } catch (error) {
       console.error('Error adding post:', error);

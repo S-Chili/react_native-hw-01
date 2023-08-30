@@ -5,6 +5,7 @@ const initialUserState = {
   username: '',
   email: '',
   selectedImage: '',
+  userId: '',
 };
 
 const userReducer = (state = initialUserState, action) => {
