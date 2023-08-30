@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ImageBackground, Image, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { PostContext } from './PostContext'; 
 import { EvilIcons, Fontisto, AntDesign, Feather } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
+import { db } from '../../config';
 import { getAuth, signOut } from 'firebase/auth';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearUser } from '../redux/actions';
 
@@ -14,9 +16,11 @@ const ProfileScreen = ({ navigation }) => {
     const { username, selectedImage } = useSelector(state => state.user);
     const [showMap, setShowMap] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState('');
-    const { posts, location } = React.useContext(PostContext);
+    const { posts, location, userId } = React.useContext(PostContext);
 
     const reversedPosts = [...posts].reverse();
+
+    const userPosts = reversedPosts.filter(post => post.userId === userId);
   
     const initialRegion = location
       ? {
@@ -41,6 +45,22 @@ const ProfileScreen = ({ navigation }) => {
     const handleCommentsPress = (post) => {
         navigation.navigate('Comments', { image: post.image });
       };
+
+      useEffect(() => {
+        const getPosts = async () => {
+          const postsRef = collection(db, '/posts');
+          const querySnapshot = await getDocs(query(postsRef, where('userId', '==', userId)));
+          
+          const userPostsData = [];
+          querySnapshot.forEach((doc) => {
+            const post = doc.data();
+            userPostsData.push(post);
+          });
+          console.log(userId);
+        };
+    
+        getPosts();
+      }, [userId]);
 
   return (
     <ScrollView contentContainerStyle={styles.mainContainer}>
@@ -99,7 +119,7 @@ const ProfileScreen = ({ navigation }) => {
             {posts.length === 0 ? (
               <Text style={styles.noPostsText}>You haven't posted any images yet.</Text>
             ) : (
-                reversedPosts.map((post, index) => (
+              userPosts.map((post, index) => (
                 <View key={index} style={styles.postContainer}>
                   <Image
                     source={{ uri: post.image }}
