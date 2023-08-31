@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,23 +11,70 @@ import {
 } from "react-native";
 import { Fontisto, Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
+import { useSelector } from "react-redux";
+import { collection, addDoc, serverTimestamp, getDocs, query, where, orderBy } from "firebase/firestore";
+import { db } from "../../config";
 
 const CommentsScreen = ({ route, navigation }) => {
   const { image } = route.params;
-
+  const { username } = useSelector(state => state.user);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
 
-  const handleAddComment = () => {
+  useEffect(() => {
+    // Отримання коментарів для цього посту з бази даних
+    const getComments = async () => {
+      // Отримати посилання на колекцію коментарів для даного посту
+      const commentsRef = query(collection(db, "comments"), orderBy("time", "desc"));
+      // Використовуємо "where" для фільтрації коментарів за зображенням
+      const querySnapshot = await getDocs(
+        query(commentsRef, where("image", "==", image))
+      );
+
+      const commentsData = [];
+      querySnapshot.forEach((doc) => {
+        const comment = doc.data();
+        commentsData.push(comment);
+      });
+  
+      setComments(commentsData.reverse());
+    };
+
+    getComments();
+  }, [image]);
+
+  const addCommentToDB = async () => {
     if (comment.trim() !== "") {
-      const currentTime = new Date();
-      setComments([...comments, { text: comment, time: currentTime }]);
-      setComment("");
+      try {
+        // Додати новий коментар до бази даних
+        await addDoc(collection(db, "comments"), {
+          text: comment,
+          time: serverTimestamp(), // Використовуємо serverTimestamp тут
+          image: image,
+          name: username,
+        });
+    
+        // Додати новий коментар безпосередньо до поточного списку коментарів
+        const newComment = { text: comment, time: new Date(), name: username }; // Замінено на new Date()
+        setComments([...comments, newComment]);
+        
+        setComment(""); // Очищення поля вводу
+      } catch (error) {
+        console.error("Error adding comment:", error);
+      }
     }
   };
 
-  const formatTime = (time) => {
-    return format(new Date(time), "d MMMM, yyyy | HH:mm");
+  const formatTime = (timestamp) => {
+    if (timestamp instanceof Date) {
+     
+      return format(timestamp, "d MMMM, yyyy | HH:mm");
+    } else if (timestamp && timestamp.seconds) {
+    
+      const date = new Date(timestamp.seconds * 1000); // Перетворюємо секунди на мілісекунди
+      return format(date, "d MMMM, yyyy | HH:mm");
+    }
+    return "";
   };
 
   return (
@@ -48,6 +95,7 @@ const CommentsScreen = ({ route, navigation }) => {
         <View style={styles.commentContainer}>
         {comments.map((item, index) => (
           <View key={index} style={styles.commentEachContainer}>
+            <Text style={styles.commentName}>{item.name}</Text>
             <Text style={styles.commentText}>{item.text}</Text>
             <Text style={styles.commentTime}>{formatTime(item.time)}</Text>
           </View>
@@ -67,7 +115,7 @@ const CommentsScreen = ({ route, navigation }) => {
             onChangeText={(text) => setComment(text)}
             autoCapitalize={"none"}
           />
-          <TouchableOpacity onPress={handleAddComment} style={styles.inputBtn}>
+          <TouchableOpacity onPress={addCommentToDB} style={styles.inputBtn}>
             <Ionicons name="arrow-up-circle" size={34} color="#FF6C00" />
           </TouchableOpacity>
         </View>
@@ -169,7 +217,11 @@ const styles = StyleSheet.create({
     color: "grey",
     fontSize: 10,
     alignSelf: "flex-end",
-    marginTop: 8,
+  },
+  commentName: {
+    color: "grey",
+    fontSize: 10,
+    alignSelf: "flex-start",
   },
 });
 
