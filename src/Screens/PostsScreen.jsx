@@ -1,16 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { PostContext } from "./PostContext";
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Modal } from "react-native";
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Modal, RefreshControl } from "react-native";
 import { EvilIcons, Fontisto } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import { db } from '../../config';
-import { collection, getDocs} from 'firebase/firestore';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+
+const getPosts = async () => {
+  const postsRef = query(collection(db, 'posts'), orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(postsRef);
+    
+  const allPostsData = [];
+  querySnapshot.forEach((doc) => {
+    const post = doc.data();
+    const postId = doc.id;
+    allPostsData.push({ ...post, id: postId });
+  });
+    
+  return allPostsData;
+};
 
 const PostsScreen = ({ navigation }) => {
   const [showMap, setShowMap] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('');
-  const { posts, location } = React.useContext(PostContext);
+  const { location } = React.useContext(PostContext);
   const [allPostsData, setAllPostsData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const initialRegion = location
     ? {
@@ -37,25 +52,25 @@ const PostsScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    const getPosts = async () => {
-      const postsRef = collection(db, 'posts'); 
-      const querySnapshot = await getDocs(postsRef);
-      
-      const allPostsData = [];
-      querySnapshot.forEach((doc) => {
-        const post = doc.data();
-        const postId = doc.id; // Отримати ідентифікатор документа
-        allPostsData.push({ ...post, id: postId }); // Додати ідентифікатор в об'єкт поста
-      });
-      
-      setAllPostsData(allPostsData); // Зберегти всі пости в стан компонента
-    };
-  
-    getPosts();
+    // Викликайте getPosts при завантаженні компонента
+    getPosts().then(newPosts => setAllPostsData(newPosts));
   }, []);
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    const newPosts = await getPosts();
+    setAllPostsData(newPosts); // Оновити дані
+    setRefreshing(false);
+  };
+  console.log(onRefresh, 'done');
+  
   return (
-    <ScrollView contentContainerStyle={styles.contentContainer}>
+    <ScrollView 
+      contentContainerStyle={styles.contentContainer}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
         <View style={styles.postsainer}>
       {allPostsData.map((post, index) => (
         <View key={index} style={styles.postContainer}>

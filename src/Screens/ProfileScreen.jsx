@@ -1,13 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ImageBackground, Image, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Image, ScrollView, TouchableOpacity, Modal, RefreshControl } from 'react-native';
 import { PostContext } from './PostContext'; 
 import { EvilIcons, Fontisto, AntDesign, Feather } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import { db } from '../../config';
 import { getAuth, signOut } from 'firebase/auth';
-import { collection, getDocs} from 'firebase/firestore';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearUser } from '../redux/actions';
+
+const getPosts = async () => {
+  const postsRef = query(collection(db, 'posts'), orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(postsRef);
+  
+  const allPostsData = [];
+  querySnapshot.forEach((doc) => {
+    const post = doc.data();
+    const postId = doc.id; // Отримати ідентифікатор документа
+    allPostsData.push({ ...post, id: postId }); // Додати ідентифікатор в об'єкт поста
+  });
+  
+  return allPostsData; // Зберегти всі пости в стан компонента
+};
 
 const ProfileScreen = ({ navigation }) => {
 
@@ -18,6 +32,7 @@ const ProfileScreen = ({ navigation }) => {
     const [selectedLocation, setSelectedLocation] = useState('');
     const { location } = React.useContext(PostContext);
     const [allPostsData, setAllPostsData] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
   
     const initialRegion = location
       ? {
@@ -43,26 +58,25 @@ const ProfileScreen = ({ navigation }) => {
         navigation.navigate('Comments', { image: post.image });
       };
 
-      useEffect(() => {
-        const getPosts = async () => {
-          const postsRef = collection(db, 'posts'); 
-          const querySnapshot = await getDocs(postsRef);
-          
-          const allPostsData = [];
-          querySnapshot.forEach((doc) => {
-            const post = doc.data();
-            const postId = doc.id; // Отримати ідентифікатор документа
-            allPostsData.push({ ...post, id: postId }); // Додати ідентифікатор в об'єкт поста
-          });
-          
-          setAllPostsData(allPostsData); // Зберегти всі пости в стан компонента
-        };
-      
-        getPosts();
-      }, []);
+    const onRefresh = async () => {
+      setRefreshing(true);
+      const newPosts = await getPosts();
+      setAllPostsData(newPosts); // Оновити дані
+      setRefreshing(false);
+    };
+    console.log(onRefresh, 'done on ProfileScreen');
+
+    useEffect(() => {
+        // Викликайте getPosts при завантаженні компонента
+        getPosts().then(newPosts => setAllPostsData(newPosts));
+    }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.mainContainer}>
+    <ScrollView 
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
     <View style={styles.container}>
       <ImageBackground
         source={require('../../assets/photoBG.png')}
@@ -190,9 +204,6 @@ const ProfileScreen = ({ navigation }) => {
 export default ProfileScreen;
 
 const styles = StyleSheet.create({
-  mainContainer: {
-    
-  },
   container: {
     flex: 1,
     backgroundColor: '#fff',

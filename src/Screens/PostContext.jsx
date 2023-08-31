@@ -47,9 +47,9 @@ export const PostProvider = ({ children }) => {
   const addPost = async (post) => {
     try {
       const postsRef = collection(db, 'posts');
-      await addDoc(postsRef, { ...post, userId }); // Додали userId до поста
+      await addDoc(postsRef, { ...post, userId, createdAt: new Date() }); // Додали userId до поста
       console.log(userId);
-      setPosts([...posts, post]);
+      setPosts([{ ...posts, post, userId, createdAt: new Date() } ]);
     } catch (error) {
       console.error('Error adding post:', error);
     }
