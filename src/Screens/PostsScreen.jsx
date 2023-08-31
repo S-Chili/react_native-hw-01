@@ -24,8 +24,8 @@ const PostsScreen = ({ navigation }) => {
   const [showMap, setShowMap] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('');
   const { location } = React.useContext(PostContext);
-  const [allPostsData, setAllPostsData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [allPostsData, setAllPostsData] = useState([]); // Використовуйте useState для зберігання списку постів
 
   const initialRegion = location
     ? {
@@ -40,7 +40,6 @@ const PostsScreen = ({ navigation }) => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       };
-      
 
   const handleLocationPress = (post) => {
     setSelectedLocation(post.location);
@@ -51,18 +50,22 @@ const PostsScreen = ({ navigation }) => {
     navigation.navigate('Comments', { image: post.image });
   };
 
-  useEffect(() => {
-    // Викликайте getPosts при завантаженні компонента
-    getPosts().then(newPosts => setAllPostsData(newPosts));
-  }, []);
-
   const onRefresh = async () => {
     setRefreshing(true);
     const newPosts = await getPosts();
-    setAllPostsData(newPosts); // Оновити дані
+    setAllPostsData(newPosts); // Оновити список постів
     setRefreshing(false);
   };
-  console.log(onRefresh, 'done');
+
+  useEffect(() => {
+    // Викликати getPosts при завантаженні компонента
+    const fetchData = async () => {
+      const newPosts = await getPosts();
+      setAllPostsData(newPosts);
+    };
+  
+    fetchData();
+  }, []);
   
   return (
     <ScrollView 

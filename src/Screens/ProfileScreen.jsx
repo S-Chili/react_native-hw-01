@@ -16,11 +16,11 @@ const getPosts = async () => {
   const allPostsData = [];
   querySnapshot.forEach((doc) => {
     const post = doc.data();
-    const postId = doc.id; // Отримати ідентифікатор документа
-    allPostsData.push({ ...post, id: postId }); // Додати ідентифікатор в об'єкт поста
+    const postId = doc.id; 
+    allPostsData.push({ ...post, id: postId }); 
   });
   
-  return allPostsData; // Зберегти всі пости в стан компонента
+  return allPostsData; 
 };
 
 const ProfileScreen = ({ navigation }) => {

@@ -10,6 +10,7 @@ export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [location, setLocation] = useState(null);
   const { userId} = useSelector(state => state.user);
+  const [allPostsData, setAllPostsData] = useState([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -47,9 +48,8 @@ export const PostProvider = ({ children }) => {
   const addPost = async (post) => {
     try {
       const postsRef = collection(db, 'posts');
-      await addDoc(postsRef, { ...post, userId, createdAt: new Date() }); // Додали userId до поста
-      console.log(userId);
-      setPosts([{ ...posts, post, userId, createdAt: new Date() } ]);
+      await addDoc(postsRef, { ...post, userId, createdAt: new Date() });
+      setAllPostsData([...allPostsData, { ...post, userId, createdAt: new Date() }]);
     } catch (error) {
       console.error('Error adding post:', error);
     }
