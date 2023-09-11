@@ -17,6 +17,7 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userId, setUserId] = useState('');
+  const [userPhoto, setUserPhoto] = useState('');
 
   const dispatch = useDispatch();
 
@@ -33,6 +34,10 @@ const LoginScreen = () => {
           const user = userCredential.user;
           console.log('Logged in with:', user.email);
 
+          const profilePicture = `https://storage.googleapis.com/myfirebase-auth-a8d39.appspot.com/${user.uid}.png`;
+        
+          // Встановіть URL фото в стані
+          console.log('profilePicture:', profilePicture);
           navigation.navigate('Home', {
             screen: 'PostsScreen',
           });
@@ -40,7 +45,6 @@ const LoginScreen = () => {
           setPassword('');
           setUserId(user.uid);
           dispatch(setUser({ username: user.displayName, email: user.email, userId: user.uid}));
-          console.log('You are used now this userId:', userId);
           console.log('You are used now this userUID:', user.uid);
           AsyncStorage.setItem('userId', user.uid);
           
@@ -62,8 +66,6 @@ const LoginScreen = () => {
       // Handle other errors
     }
   };
-
-  
 
   const navigation = useNavigation();
 

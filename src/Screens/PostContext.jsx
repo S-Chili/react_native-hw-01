@@ -47,9 +47,13 @@ export const PostProvider = ({ children }) => {
 
   const addPost = async (post) => {
     try {
-      const postsRef = collection(db, 'posts');
-      await addDoc(postsRef, { ...post, userId, createdAt: new Date() });
-      setAllPostsData([...allPostsData, { ...post, userId, createdAt: new Date() }]);
+      if (post.userId && post.location) {
+        const postsRef = collection(db, 'posts');
+        await addDoc(postsRef, { ...post, createdAt: new Date() });
+        setAllPostsData([...allPostsData, { ...post, createdAt: new Date() }]);
+      } else {
+        console.error('userId is undefined in the post data');
+      }
     } catch (error) {
       console.error('Error adding post:', error);
     }

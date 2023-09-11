@@ -13,7 +13,7 @@ const RegistrationScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [selectedImage, setSelectedImage] = useState('');
-  const [userId, setUserId] = useState(null);
+  const [userId, setUserId] = useState(''); // Оновлено з const на useState
 
   const dispatch = useDispatch();
 
@@ -22,39 +22,37 @@ const RegistrationScreen = () => {
   const onRegister = async () => {
     try {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.match(emailRegex)) {
-      alert('Імейл має бути правильного формату');
-      return;
-     }
+      if (!email.match(emailRegex)) {
+        alert('Імейл має бути правильного формату');
+        return;
+      }
       const auth = getAuth();
       await createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
           console.log('Registered with:', user.email);
 
-        const displayName = username;
-        const userId = user.uid;
-        setUserId(userId);
-        AsyncStorage.setItem('userId', userId);
+          const displayName = username;
+          const userId = user.uid; // Оновлено userId внутрішньо в області видимості onRegister
+          setUserId(userId); // Оновлено змінну userId за допомогою setUserId
 
-        updateProfile(user, { displayName, photoURL: selectedImage })
-          .then(() => {
-            dispatch(setUser({ username: displayName, email: user.email, selectedImage: user.photoURL }));
-            console.log('Profile uid', userId);
-            console.log('Profile updated successfully');
-            console.log('Profile updated with:', user.displayName);
-            console.log('Profile updated with photo:', user.photoURL);
-          })
-          .catch((error) => {
-            console.error('Error updating profile:', error);
-            
-          });
+          AsyncStorage.setItem('userId', userId);
+
+          updateProfile(user, { displayName, photoURL: selectedImage })
+            .then(() => {
+              dispatch(setUser({ username: user.displayName, email: user.email, userId: user.uid, selectedImage: user.photoURL}));
+              console.log('Profile uid', userId);
+              console.log('Profile updated successfully');
+              console.log('Profile updated with:', user.displayName);
+              console.log('Profile updated with photo:', user.photoURL);
+            })
+            .catch((error) => {
+              console.error('Error updating profile:', error);
+            });
 
           navigation.navigate('Home', {
-            screen: 'PostsScreen',
-            
+            screen: 'PostsScreen', 
           });
-
           setEmail(''); 
           setPassword('');
           setUsername('');

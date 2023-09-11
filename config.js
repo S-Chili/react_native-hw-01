@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore'
 
 // Your web app's Firebase configuration
@@ -15,13 +15,5 @@ const firebaseConfig = initializeApp ({
 
 const auth = getAuth(firebaseConfig);
 const db = getFirestore(firebaseConfig);
-
-onAuthStateChanged(auth, user => {
-  if(user !== null) {
-    console.log('logged in!');
-  } else {
-    console.log('No user');
-  }
-})
 
 export { auth, db };

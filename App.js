@@ -28,12 +28,11 @@ export default function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const auth = getAuth();
+  useEffect(() => { 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user); // If user is defined, set isAuthenticated to true
     });
-
+  
     return () => unsubscribe();
   }, []);
 

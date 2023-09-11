@@ -33,7 +33,7 @@ const ProfileScreen = ({ navigation }) => {
     const { location } = React.useContext(PostContext);
     const [allPostsData, setAllPostsData] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
-  
+
     const initialRegion = location
       ? {
           latitude: location.latitude,
@@ -71,6 +71,7 @@ const ProfileScreen = ({ navigation }) => {
         getPosts().then(newPosts => setAllPostsData(newPosts));
     }, []);
 
+  
   return (
     <ScrollView 
       refreshControl={
